@@ -1,0 +1,507 @@
+@import url('https://fonts.googleapis.com/css2?family=Jost:wght@400;600;700&display=swap');
+
+/* ---------- tile ---------- */
+.product {
+  position: relative;
+  width: 100%;
+  font-family: "Jost", system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+}
+
+.product-img {
+  display: block;
+  width: 100%;
+  height: auto;
+  object-fit: cover;
+  border-radius: 0;
+}
+
+/* + button centered */
+.fab {
+  --fab-size: 22px;
+  --fab-bg: #fff;
+  --fab-fg: #111;
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: var(--fab-size);
+  height: var(--fab-size);
+  transform: translate(-50%, -50%);
+  border-radius: 999px;
+  border: 1px solid rgba(0, 0, 0, .25);
+  background: #F8F8F8E5;
+  box-shadow: 0 6px 16px rgba(0, 0, 0, .18);
+  cursor: pointer;
+  z-index: 5;
+}
+
+.fab-icon {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  font-weight: 400;
+  font-size: 14px;
+  line-height: 1;
+  color: var(--fab-fg);
+  pointer-events: none;
+  border-width: 1.5px;
+
+}
+
+/* ---------- centered modal ---------- */
+.modal {
+  position: fixed;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  z-index: 1000;
+}
+
+.modal-backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, .4);
+}
+
+.modal-card {
+  position: relative;
+  /*width: min(520px, calc(100vw - 40px));*/
+  background: #fff;
+  border-radius: 0;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, .25);
+  padding: 18px 18px 20px;
+  z-index: 1;
+  opacity: 0;
+  transform: translateY(8px) scale(.98);
+  animation: modalIn .18s ease forwards;
+  width: 311px;
+  height: 447px;
+  opacity: 1;
+
+}
+
+@keyframes modalIn {
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.modal-close {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  width: 22px;
+  height: 22px;
+  opacity: 1;
+  border: 1px solid #ffff;
+  border-radius: 0;
+  background: #ffff;
+  color: #111;
+  font-size: 20px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+
+/* head with small image */
+.modal-head {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.modal-thumb {
+  object-fit: cover;
+  border-radius: 0;
+  border: 1px solid #eee;
+  width: 120px;
+  height: 140px;
+  opacity: 1;
+  top: 36px;
+  left: 17px;
+
+}
+
+.p-title {
+  font-family: Jost;
+  font-weight: 300;
+  font-style: Light;
+  font-size: 16px;
+  line-height: 120%;
+  letter-spacing: 0px;
+  vertical-align: middle;
+  width: 136px;
+  height: 19px;
+  opacity: 1;
+  top: 49px;
+  left: 145px;
+  margin-top: 10px;
+}
+
+.p-price {
+  font-family: Lustria;
+  font-weight: 400;
+  font-style: Regular;
+  font-size: 16px;
+  line-height: 120%;
+  letter-spacing: 0px;
+  vertical-align: middle;
+  width: 64px;
+  height: 19px;
+  opacity: 1;
+  top: 88px;
+  left: 145px;
+  margin-top: 20px;
+}
+
+.p-desc {
+  font-family: Jost;
+  font-weight: 300;
+  font-style: Light;
+  font-size: 14px;
+  line-height: 110.00000000000001%;
+  letter-spacing: -1%;
+  width: 146;
+  height: 60;
+  opacity: 1;
+  top: 119px;
+  left: 145px;
+  margin-top: 10px;
+}
+
+/* label */
+.form-label {
+  display: block;
+  margin: 14px 0 6px;
+  text-transform: uppercase;
+  width: 33px;
+  height: 18px;
+  opacity: 1;
+  font-family: Jost;
+  font-weight: 400;
+  font-style: Regular;
+  font-size: 14px;
+  line-height: 130%;
+  letter-spacing: 0%;
+
+}
+
+/* segmented color control */
+
+.segmented {
+  position: relative;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  border: 1px solid #111;
+  height: 48px;
+  background: #fff;
+  overflow: hidden;
+}
+
+/* the sliding black highlight */
+.segmented::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 50%;
+  height: 100%;
+  background: #000;
+  transform: translateX(0%);
+  /* left by default */
+  transition: transform .28s ease;
+  /* <-- smooth slide */
+  z-index: 0;
+}
+
+/* move highlight when the right option is active */
+.segmented.pos-right::after {
+  transform: translateX(100%);
+}
+
+.segmented.pos-left::after {
+  transform: translateX(0%);
+}
+
+/* buttons sit above the highlight */
+.segment {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  padding: 0 16px 0 28px;
+  /* room for stripe */
+  background: transparent;
+  color: #111;
+  font-weight: 600;
+  font-size: 18px;
+  border: 0;
+  cursor: pointer;
+  transition: color .28s ease;
+  /* text fades to white */
+}
+
+/* left color stripe on each button */
+.segment::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 6px;
+  background: var(--stripe, #000);
+  z-index: 2;
+  /* above the highlight */
+}
+
+
+/* active: only change text color (background handled by highlight) */
+.segment.active {
+  color: #fff;
+}
+
+
+/* Custom size dropdown */
+.size-select {
+  position: relative;
+}
+
+.size-trigger {
+  width: 100%;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border: 1px solid #111;
+  background: #fff;
+  padding: 0 0 0 16px;
+  cursor: pointer;
+}
+
+.size-label {
+  font-size: 16px;
+  font-weight: 500;
+}
+
+.size-label.placeholder {
+  color: #444;
+}
+
+.size-arrow {
+  width: 60px;
+  height: 100%;
+  border-left: 1px solid #111;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.size-arrow .chev {
+  width: 22px;
+  height: 22px;
+  transition: transform .15s ease;
+}
+
+.size-select.open .size-arrow .chev {
+  transform: rotate(180deg);
+}
+
+/* remove bullets + left indent */
+.size-menu {
+  list-style: none;
+  /* no bullets */
+  list-style-type: none;
+  /* extra-sure */
+  margin: 0;
+  /* remove default ul margin */
+  padding: 0;
+  /* remove default ul padding */
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: calc(100% - 1px);
+  border: 1px solid #111;
+  background: #fff;
+  z-index: 20;
+}
+
+/* each option */
+.size-option {
+  list-style: none;
+  /* no bullets on li */
+  padding: 12px 6px;
+  text-align: center;
+  font-size: 18px;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.size-option:hover {
+  background: #f2f2f2;
+}
+
+
+/* CTA button */
+.add-to-cart {
+  margin-top: 50px;
+  width: 100%;
+  height: 56px;
+  border: none;
+  border-radius: 0;
+  background: #000;
+  color: #fff;
+  font-weight: 700;
+  font-size: 16px;
+  text-transform: uppercase;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  font-family: Jost;
+  font-weight: 400;
+  font-style: Regular;
+  font-size: 16px;
+  line-height: 20.48px;
+  letter-spacing: 0px;
+  text-align: center;
+  vertical-align: middle;
+  text-transform: uppercase;
+
+}
+
+.add-to-cart:disabled {
+  background: #999;
+  cursor: not-allowed;
+}
+
+.arrow {
+  font-size: 18px;
+  line-height: 1;
+}
+
+/* Segmented control container */
+.segmented {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  /* two options */
+  border: 1px solid #111;
+  height: 48px;
+  background: #ffff;
+  /* light grey like the mock */
+  overflow: hidden;
+}
+
+/* Each segment/button */
+.segment {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  /* text is left-aligned */
+  padding: 0 16px 0 28px;
+  /* room for the stripe */
+  background: transparent;
+  color: #111;
+  font-weight: 600;
+  font-size: 18px;
+  border: 0;
+  cursor: pointer;
+  font-family: Jost;
+  font-weight: 400;
+  font-style: Regular;
+  font-size: 18px;
+  line-height: 100%;
+  letter-spacing: -2%;
+  text-transform: capitalize;
+}
+
+/* Left colored stripe inside each segment */
+.segment::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 6px;
+  /* thickness of the color strip */
+  background: var(--stripe, #000);
+}
+
+
+
+/* Selected state: button turns black, text white (stripe remains) */
+.segment.active {
+  background: #000;
+  color: #fff;
+}
+
+/* Tablet */
+@media (max-width: 1024px){
+  .fab{ --fab-size: 32px; }              /* larger tap target */
+}
+
+/* Phones */
+@media (max-width: 640px){
+  /* Modal sizing for small screens */
+  .modal-card{
+    width: min(92vw, 360px);
+    max-height: 90svh;                   /* safe viewport height */
+    height: auto;                        /* let it grow; scroll inside */
+    padding: 16px;
+    overflow: auto;
+  }
+  .modal-close{ width: 32px; height: 32px; font-size: 18px; }
+
+  /* Header */
+  .modal-head{ gap: 10px; margin-bottom: 10px; }
+  .modal-thumb{ width: 72px; height: 84px; }
+  .p-title{ font-size: 16px; }
+  .p-price{ font-size: 16px; margin-top: 4px; }
+  .p-desc{ font-size: 13px; }
+
+  /* Color segmented */
+  .segmented{
+    height: 44px;
+    border-width: 1px;
+  }
+  .segment{
+    font-size: 16px;
+    padding: 0 12px 0 26px;             /* keep room for stripe */
+  }
+  .segment.right{ border-left-width: 3px; } /* slightly thinner on mobile */
+
+  /* Fancy sliding highlight stays smooth */
+  .segmented::after{ transition: transform .24s ease; }
+  .segment{ transition: color .24s ease; }
+
+  /* Size dropdown */
+  .size-trigger{
+    height: 44px;
+    padding-left: 14px;
+  }
+  .size-label{ font-size: 15px; }
+  .size-arrow{ width: 40px; }
+  .size-arrow .chev{ font-size: 20px; }
+  .size-option{ padding: 12px 6px; font-size: 16px; }
+
+  /* CTA */
+  .add-to-cart{
+    height: 50px;
+    font-size: 15px;
+    gap: 8px;
+  }
+}
+
+/* Optional: bigger hit areas on touch devices */
+@media (pointer: coarse){
+  .fab{ --fab-size: 36px; }
+  .segment, .size-trigger, .size-option, .add-to-cart{ min-height: 44px; }
+}
+
+@media (min-width: 480px) and (max-width: 768px){
+  .product-grid{ grid-template-columns: repeat(2, 1fr); }
+}

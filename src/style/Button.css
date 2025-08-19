@@ -1,0 +1,94 @@
+.shop-btn {
+  /* Colors */
+  --base-bg:   #ffd700;   /* yellow */
+  --hover-bg:  #000000;   /* black */
+  --base-color:#000000;   /* black text */
+  --hover-color:#ffffff;  /* white text */
+
+  width: 207px;
+  height: 44px;
+  position: relative;
+  overflow: hidden;
+
+  display: flex;
+  align-items: center;       /* vertical centering */
+  justify-content: center;   /* horizontal centering */
+  gap: 10px;
+
+  background: var(--base-bg);
+  color: var(--base-color);
+  border: none;
+  cursor: pointer;
+  box-shadow: 0 2px 4px rgba(0,0,0,.2);
+
+  /* === Typography (your requested values) === */
+  font-family: "Jost", system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+  font-weight: 400;
+  font-style: normal;        /* 'Regular' => normal in CSS */
+  font-size: 16px;
+  line-height: 20.48px;
+  letter-spacing: 0px;
+  text-align: center;
+  text-transform: uppercase;
+
+  /* Flip the base text color right after the wipe completes */
+  transition: color .01s linear .35s;
+}
+
+/* Ensure overlay text uses the exact same typography */
+.shop-btn::after,
+.shop-btn .btn-content {
+  font-family: "Jost", system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+  font-weight: 400;
+  font-style: normal;
+  font-size: 16px;
+  line-height: 20.48px;
+  letter-spacing: 0px;
+  text-transform: uppercase;
+  text-align: center;
+}
+
+/* Base content sits above the bg overlay */
+.shop-btn .btn-content {
+  position: relative;
+  z-index: 1;
+}
+
+/* Background wipe (left ➜ right) */
+.shop-btn::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: var(--hover-bg);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform .35s ease;
+  z-index: 0;
+}
+
+/* Text wipe overlay: reveals white text left ➜ right, then fades out */
+.shop-btn::after {
+  content: attr(data-text);
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--hover-color);
+  clip-path: inset(0 100% 0 0);             /* hidden from the right */
+  opacity: 1;
+  transition: clip-path .35s ease, opacity .15s ease .36s;
+  z-index: 2;
+  pointer-events: none;
+}
+
+/* Hover state: run both wipes */
+.shop-btn.hovered::before { transform: scaleX(1); }     /* bg wipe */
+.shop-btn.hovered::after  { clip-path: inset(0 0 0 0); opacity: 0; }
+
+/* After wipe completes, base text is white */
+.shop-btn.hovered { color: var(--hover-color); }
+
+/* Optional arrow nudge */
+.arrow { transition: transform .35s ease; }
+.shop-btn.hovered .arrow { transform: translateX(4px); }
