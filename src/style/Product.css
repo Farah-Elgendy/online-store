@@ -505,3 +505,65 @@
 @media (min-width: 480px) and (max-width: 768px){
   .product-grid{ grid-template-columns: repeat(2, 1fr); }
 }
+/* ---------- Added-to-cart toast ---------- */
+.add-toast{
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  z-index: 1200; /* above modal */
+}
+
+.add-toast-card{
+  width: 320px;
+  background: #fff;
+  border: 1px solid #111;
+  border-radius: 0;
+  box-shadow: 0 14px 40px rgba(0,0,0,.22);
+  padding: 12px;
+  animation: toastIn .18s ease forwards;
+  opacity: 0;
+  transform: translateY(8px);
+}
+@keyframes toastIn { to { opacity: 1; transform: translateY(0); } }
+
+.toast-close{
+  position: absolute;
+  top: 6px; right: 6px;
+  width: 24px; height: 24px;
+  background: #fff; border: 1px solid #e5e5e5; border-radius: 0;
+  cursor: pointer; line-height: 1; font-size: 16px; color:#111;
+}
+.toast-close:hover{ background:#f7f7f7; }
+
+.toast-row{
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  padding-right: 28px; /* room for the close button */
+}
+.toast-thumb{
+  width: 56px; height: 56px; object-fit: cover; border: 1px solid #eee;
+}
+.toast-meta{ min-width: 0; }
+.toast-title{ font-weight: 700; font-size: 14px; }
+.toast-desc{ font-size: 12px; color:#555; margin-top: 2px; }
+
+.toast-actions{
+  margin-top: 10px;
+  display: flex; gap: 8px; justify-content: flex-end;
+}
+.toast-btn{
+  height: 36px; padding: 0 12px; border-radius: 0; cursor: pointer; font-weight: 600;
+}
+.toast-btn.ghost{ background:#fff; border:1px solid #111; color:#111; }
+.toast-btn.solid{ background:#000; border:1px solid #000; color:#fff; }
+
+/* Mobile placement */
+@media (max-width: 640px){
+  .add-toast{
+    left: 50%; right: auto;
+    transform: translateX(-50%);
+    bottom: 16px;
+  }
+  .add-toast-card{ width: min(92vw, 360px); }
+}

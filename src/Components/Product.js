@@ -2,44 +2,37 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import "../style/Product.css";
 import { useCart } from "./CartContext";
 
-/**
- * Props:
- * - id, title, image, basePrice (or price), description
- * - variants: [{ id, color:{label,bg,fg}, size, price?, stock? }, ...]
- *   -> colors/sizes are derived from variants so they always stay in sync.
- * Fallback:
- * - If variants not provided, you can still pass `colors` and `sizes`.
- */
 export default function Product({
     id,
     image,
     alt = "Product image",
     title = "Orange Wide Leg",
-    price,                 // optional base price
-    basePrice,             // same as price (either one)
+    price,
+    basePrice,
     description = "This one-piece swimsuit is crafted from jersey featuring an allover micro Monogram motif in relief.",
-    variants = null,       // preferred
-    colors = ["White", "Black"], // fallback if variants=null
-    sizes = ["XS", "S", "M", "L", "XL"], // fallback
+    variants = null,
+    colors = ["White", "Black"],
+    sizes = ["XS", "S", "M", "L", "XL"],
+    onViewCart = () => { }, // optional callback for the “View cart” button
 }) {
-    const { addItem } = useCart();
+    const { addItem } = useCart?.() ?? { addItem: () => { } };
 
     const [open, setOpen] = useState(false);
     const dialogRef = useRef(null);
 
-    // ---- Normalize a color to {label,bg,fg}
+    // ---- normalize colors
     const normColor = (opt) => {
         if (!opt) return { label: "Color", bg: "#000", fg: "#fff" };
         if (typeof opt === "string") {
             const low = opt.toLowerCase();
-            if (low === "white") return { label: "White", bg: "#ffffff", fg: "#111111" };
-            if (low === "black") return { label: "Black", bg: "#000000", fg: "#ffffff" };
-            return { label: opt, bg: opt, fg: "#ffffff" };
+            if (low === "white") return { label: "White", bg: "#fff", fg: "#111" };
+            if (low === "black") return { label: "Black", bg: "#000", fg: "#fff" };
+            return { label: opt, bg: opt, fg: "#fff" };
         }
         return { label: opt.label ?? "Color", bg: opt.bg ?? opt.value ?? "#000", fg: opt.fg ?? opt.text ?? "#fff" };
     };
 
-    // ---- Build a variant list (prefer `variants` prop; else synthesize from colors x sizes)
+    // ---- build variants (prefer explicit variants)
     const variantList = useMemo(() => {
         if (Array.isArray(variants) && variants.length) {
             return variants.map((v, i) => ({
@@ -50,43 +43,37 @@ export default function Product({
                 stock: v.stock ?? null,
             }));
         }
-        // Fallback synthetic variants
-        const col = colors.map(normColor);
+        // fallback synthesize from colors x sizes
+        const cols = colors.map(normColor);
         const list = [];
-        col.forEach((c) =>
-            sizes.forEach((s, i) =>
+        cols.forEach((c) =>
+            sizes.forEach((s, i) => {
                 list.push({
                     id: `${id || title}-${c.label}-${s}-${i}`,
                     color: c,
                     size: s,
                     price: basePrice ?? price ?? 0,
                     stock: null,
-                })
-            )
+                });
+            })
         );
         return list;
     }, [variants, colors, sizes, id, title, basePrice, price]);
 
-    // ---- Unique color list from variants
+    // unique colors
     const colorOpts = useMemo(() => {
         const map = new Map();
-        variantList.forEach((v) => {
-            if (!map.has(v.color.label)) map.set(v.color.label, v.color);
-        });
-        return Array.from(map.values()).slice(0, 2); // your UI shows 2
+        variantList.forEach((v) => { if (!map.has(v.color.label)) map.set(v.color.label, v.color); });
+        return Array.from(map.values()).slice(0, 2);
     }, [variantList]);
 
-    // ---- Sizes available for a given color (consider stock if provided)
     const sizesForColor = (label) =>
-        variantList
-            .filter((v) => v.color.label === label && (v.stock == null || v.stock > 0))
-            .map((v) => v.size);
+        variantList.filter(v => v.color.label === label && (v.stock == null || v.stock > 0)).map(v => v.size);
 
     const [selectedColor, setSelectedColor] = useState(colorOpts[0]);
     const [sizeOpen, setSizeOpen] = useState(false);
     const [size, setSize] = useState("");
 
-    // When color changes, reset size if not available
     useEffect(() => {
         if (selectedColor) {
             const available = sizesForColor(selectedColor.label);
@@ -95,41 +82,29 @@ export default function Product({
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [selectedColor]);
 
-    // Selected variant (color + size)
-    const selectedVariant = useMemo(
-        () =>
-            variantList.find(
-                (v) => v.color.label === selectedColor?.label && v.size === size
-            ) || null,
-        [variantList, selectedColor, size]
-    );
+    const selectedVariant =
+        variantList.find(v => v.color.label === selectedColor?.label && v.size === size) || null;
 
-    // Price to show (variant overrides base)
     const displayPrice = selectedVariant?.price ?? basePrice ?? price ?? "";
 
-    // ESC to close + lock scroll while modal open
+    // modal esc + scroll lock
     useEffect(() => {
         const onKey = (e) => open && e.key === "Escape" && setOpen(false);
         document.addEventListener("keydown", onKey);
         document.body.style.overflow = open ? "hidden" : "";
-        return () => {
-            document.removeEventListener("keydown", onKey);
-            document.body.style.overflow = "";
-        };
+        return () => { document.removeEventListener("keydown", onKey); document.body.style.overflow = ""; };
     }, [open]);
 
-    // Close size menu on outside click
-    useEffect(() => {
-        function onDoc(e) {
-            if (sizeOpen && dialogRef.current && !dialogRef.current.contains(e.target)) {
-                setSizeOpen(false);
-            }
-        }
-        document.addEventListener("mousedown", onDoc);
-        return () => document.removeEventListener("mousedown", onDoc);
-    }, [sizeOpen]);
+    // ------- NEW: “added to cart” toast -------
+    const [toastOpen, setToastOpen] = useState(false);
+    const [justAdded, setJustAdded] = useState(null); // {image,title,color,size,price}
 
-    // ---- Add to cart
+    useEffect(() => {
+        if (!toastOpen) return;
+        const t = setTimeout(() => setToastOpen(false), 2500);
+        return () => clearTimeout(t);
+    }, [toastOpen]);
+
     function handleAdd() {
         if (!selectedVariant) return;
         const key = `${id || title}-${selectedVariant.color.label}-${selectedVariant.size}`;
@@ -145,13 +120,20 @@ export default function Product({
             qty: 1,
         });
         setOpen(false);
+        setJustAdded({
+            image,
+            title,
+            color: selectedVariant.color,
+            size: selectedVariant.size,
+            price: selectedVariant.price ?? 0,
+        });
+        setToastOpen(true);
     }
 
     return (
         <div className="product">
             <img className="product-img" src={image} alt={alt} />
 
-            {/* small white + to open */}
             <button className="fab" type="button" onClick={() => setOpen(true)}>
                 <span className="fab-icon" aria-hidden="true">+</span>
             </button>
@@ -172,7 +154,7 @@ export default function Product({
                             </div>
                         </div>
 
-                        {/* Color segmented */}
+                        {/* Color segmented with sliding highlight (smooth) */}
                         <label className="form-label">Color</label>
                         {(() => {
                             const activeIdx = colorOpts.findIndex(c => c.label === selectedColor?.label);
@@ -197,7 +179,7 @@ export default function Product({
                             );
                         })()}
 
-                        {/* Size (options from variants for the chosen color) */}
+                        {/* Size dropdown */}
                         <label className="form-label">Size</label>
                         <div className={`size-select ${sizeOpen ? "open" : ""}`}>
                             <button
@@ -206,11 +188,9 @@ export default function Product({
                                 role="combobox"
                                 aria-expanded={sizeOpen}
                                 aria-haspopup="listbox"
-                                onClick={() => setSizeOpen((v) => !v)}
+                                onClick={() => setSizeOpen(v => !v)}
                             >
-                                <span className={`size-label ${!size ? "placeholder" : ""}`}>
-                                    {size || "Choose your size"}
-                                </span>
+                                <span className={`size-label ${!size ? "placeholder" : ""}`}>{size || "Choose your size"}</span>
                                 <span className="size-arrow">
                                     <svg className="chev" viewBox="0 0 24 24" aria-hidden="true">
                                         <path d="M6 9l6 6 6-6" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
@@ -236,14 +216,31 @@ export default function Product({
                         </div>
 
                         {/* CTA */}
-                        <button
-                            className="add-to-cart"
-                            type="button"
-                            disabled={!selectedVariant}
-                            onClick={handleAdd}
-                        >
+                        <button className="add-to-cart" type="button" disabled={!selectedVariant} onClick={handleAdd}>
                             ADD TO CART <span className="arrow">→</span>
                         </button>
+                    </div>
+                </div>
+            )}
+
+            {/* ------- NEW: Added-to-cart toast card ------- */}
+            {toastOpen && justAdded && (
+                <div className="add-toast" role="status" aria-live="polite">
+                    <div className="add-toast-card">
+                        <button className="toast-close" aria-label="Close" onClick={() => setToastOpen(false)}>×</button>
+                        <div className="toast-row">
+                            <img className="toast-thumb" src={justAdded.image} alt="" />
+                            <div className="toast-meta">
+                                <div className="toast-title">Added to cart</div>
+                                <div className="toast-desc">
+                                    {justAdded.title} · {justAdded.color?.label} · {justAdded.size}
+                                </div>
+                            </div>
+                        </div>
+                        <div className="toast-actions">
+                            <button className="toast-btn ghost" onClick={() => setToastOpen(false)}>Continue shopping</button>
+                            <button className="toast-btn solid" onClick={onViewCart}>View cart</button>
+                        </div>
                     </div>
                 </div>
             )}
